@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel=“preconnect” href=“https://fonts.googleapis.com”>
+    <link rel=“preconnect” href=“https://fonts.gstatic.com” crossorigin>
+    <link href=“https://fonts.googleapis.com/css2?family=Lobster&display=swap” rel=“stylesheet”>
+    <link href="style.css" rel="stylesheet">
+    <link rel=“preconnect” href=“https://fonts.googleapis.com”>
+    <link rel=“preconnect” href=“https://fonts.gstatic.com” crossorigin>
+    <link href=“https://fonts.googleapis.com/css2?family=Jost:wght@300&family=Lobster&display=swap” rel=“stylesheet”>   
+    <script src="https://cdnjs.deepai.org/deepai.min.js"></script>
+    <link href=<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap" rel="stylesheet"></script>
+    <link href="https://fonts.googleapis.com/css?family=Archivo+Black&display=swap" rel="stylesheet">
+    <link rel="stylesheet" media="screen" href="https://fontlibrary.org//face/unique" type="text/css"/>
+    <title>Found in Translation</title>
+    <style>
+        img{
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="gradient-text">Found in Translation</h1>
+    <br>
+    <h3>
+        <form>
+            <label for="enterNoun">Please enter a noun:&ensp;&ensp;</label>
+            <input type="text" id="enterNoun" name="enterNoun"><br><br>
+            <input type="submit" id="submitButton" value="Submit" class="submit span hover">
+        </form>
+    </h3>
+    
+    <section id="metSection"></section>
+    <script>
+        //references
+        //<button id="submitButton" value="Submit"></button>
+        let metSection = document.getElementById("metSection")
+        let textInput = document.getElementById("enterNoun");
+        let metNoun = textInput.value
+        let metListUrl
+        let metID
+        let thumb
+        let title
+        let resp
+        //let randomNumber
+        //const deepai = require('deepai')
+        // const deepai = 0
+        deepai.setApiKey('cd0956f3-fbc5-446b-a683-db14a007263d');
+        //let deepai = 0
+        let thumbAI
+        let titleAI
+        let nytSearch
+        let nytUrl
+        let nytUrlContainer
+        let wordCount
+        let nytWebUrl 
+        let nytAbstract
+        let submitButton = document.getElementById("submitButton")
+
+        let nytApiKey = "&api-key=eU2EDQvuVA3VoAqk49QAv0GqubIQv0ft"
+        let recipeUrl
+        let recipeSourceUrl = "https://example.com";
+        let recipeId
+        let recipeIdUrl
+        let recipeKey = "?apiKey=2d456ee3bc8b45ef81d055e673f5c705"
+
+        //functions
+        let submitHandler = function (event){
+            console.info(event)
+            event.preventDefault()
+            metNoun = textInput.value
+            console.info (metNoun)
+            fetchMetList()
+        }
+
+        //fetchers
+        let fetchMetList = function (){
+            metListUrl = "https://collectionapi.metmuseum.org/public/collection/v1/search?q=" + metNoun + '&' + "print"
+            console.info(metListUrl)
+            fetch (metListUrl)
+            .then( (response) => {
+                console.info(response)
+                return response.json()
+            })
+            .then ( (data) => {
+                console.info (data)
+                metDataHandler (data)
+            })
+            // .catch( (error) => {
+            //     console.error(serverError)
+            // })
+        }
+
+        let fetchFirstId = function (){
+            metGetID = "https://collectionapi.metmuseum.org/public/collection/v1/objects/" + metID
+            fetch (metGetID)
+            .then( (response) => {
+                console.info(response)
+                return response.json()
+            })
+            .then ( (data) => {
+                metIdDataHandler(data)
+                console.info (data)
+            })
+            //.catch( (error) => {
+                //console.error(serverError)
+            //})
+        }
+
+        let fetchDeepAi = function (){
+            (async function() {
+                //src="https://cdnjs.deepai.org/deepai.min.js"
+                // deepai.setApiKey('cd0956f3-fbc5-446b-a683-db14a007263d');
+                resp = await deepai.callStandardApi("text2img", {
+                        text: title, 
+                })
+                console.log(resp)
+                DeepAiHandler(resp)
+                // thumbAI = resp.Object.output_url[0]
+                // console.log (thumbAI)
+              }
+            )()
+
+            //thumbAI = resp.output_url[0] //test??
+            // "https://api.deepai.org/job-view-file/6548f1cf-80ae-4b1d-8b5c-1b2570a8a068/outputs/output.jpg"; 
+            //nytSearch = thumbAI.substr(37, 40)
+        }
+
+        let fetchNYT = function () {
+            nytUrl = "https://api.nytimes.com/svc/search/v2/articlesearch.json?q=" + nytSearch + nytApiKey
+            fetch (nytUrl).
+            then ( (response) => {
+                return response.json()
+            })
+            .then ( (data) => {
+                nytHandler(data)
+                console.info (data)
+                // let rFrame = document.createElement('iframe');
+                // rFrame.src = recipeSourceUrl
+                // rFrame.width = 200%
+                // metSection.appendChild(rFrame)
+            })
+        }
+
+        let fetchRecipeId = function () {
+            recipeIdUrl = "https://api.spoonacular.com/recipes/complexSearch/" + recipeKey + "&minCalories=" + wordCount
+            fetch (recipeIdUrl)
+            .then ( (response) => {
+                return response.json()
+            })
+            .then ( (data) => {
+                recipeIdHandler(data)
+                console.info (data)
+            })
+        }
+
+        let fetchRecipe = function () {
+            recipeUrl = "https://api.spoonacular.com/recipes/" + recipeId + "/information/" + recipeKey
+            fetch (recipeUrl)
+            .then ( (response) => {
+                return response.json()
+            })
+            .then ( (data) => {
+                console.info (data)
+                recipeSourceUrl = data.sourceUrl
+                console.info (recipeSourceUrl)
+
+                recipeUrlContainer = document.createElement('a') 
+                recipeUrlContainer.innerText = "Recipe"
+                recipeUrlContainer.className = "btn";
+                recipeUrlContainer.href=recipeSourceUrl
+                metSection.appendChild(recipeUrlContainer)
+
+                // let recipeButton = document.createElement("submit")
+                // button.innerHTML = "Recipe"
+                // metSection.appendChild(recipeButton)
+
+                // let rFrame = document.createElement('iframe');
+                // rFrame.src = recipeSourceUrl
+                // rFrame.width = 200%
+                // metSection.appendChild(rFrame)
+            })
+            //recipeSourceUrl = data.sourceUrl
+        }
+
+        //handlers
+        let metDataHandler = function(metData){
+            //to remove the previously generated result
+            //while(cocktailSection.firstChild){
+                //cocktailSection.removeChild(cocktailSection.firstChild)
+            //}
+            console.info (metData)
+            metID = metData.objectIDs[0]
+            console.info(metID)
+            fetchFirstId()
+        }
+
+        let metIdDataHandler = function (metIdData) {
+            thumb = metIdData.primaryImage
+            title = metIdData.title[0]
+            
+            let thumbContainer = document.createElement ('img')
+            thumbContainer.src = thumb
+            thumbContainer.alt = metID
+            metSection.appendChild(thumbContainer)
+
+            fetchDeepAi()
+            //fetchNYT()
+        }    
+
+        let DeepAiHandler = function (deepAiData) {
+            thumbAI = resp.output_url
+            nytSearch = thumbAI.substr(37, 38)
+            console.log (nytSearch)
+            console.log (thumbAI)
+
+            let thumbAiContainer = document.createElement ('img')
+            thumbAiContainer.src = thumbAI
+            //thumbAiContainer.alt = titleAI
+            metSection.appendChild(thumbAiContainer)
+
+            fetchNYT()
+        }    
+
+        let nytHandler = function (nytData) {
+            console.log(nytData)
+            printPage = nytData.response.docs[0].print_page
+            wordCount = printPage * 10
+            console.log(wordCount)
+            //titleNyt = nytData.response.docs[0].snippet
+            nytWebUrl = nytData.response.docs[0].web_url
+            
+            nytUrlContainer = document.createElement('a') 
+            nytUrlContainer.innerText = "NYT Article"
+            nytUrlContainer.href=nytWebUrl
+            nytUrlContainer.className = "btn";
+            metSection.appendChild(nytUrlContainer)
+            console.info (nytWebUrl)
+            //console.info (titleNyt)
+            //metSection.appendChild(thumbAiContainer)
+
+            // let nFrame = document.createElement('button');
+            // nFrame.src = nytWebUrl
+            // nFrame.width = 200%
+            // metSection.appendChild(nFrame)
+
+            fetchRecipeId()
+        }   
+        
+        let recipeIdHandler = function (recipeIdData) {
+            console.info(recipeIdData)
+            if (recipeIdData.results.length > 0) {
+                let arrLength = recipeIdData.results.length
+                let randomInRange = Math.floor(Math.random()*arrLength)
+                recipeId = recipeIdData.results[randomInRange].id //how to make this a random integer
+            }
+            //randomNumber = Math.floor(Math.random()*50)+1
+            console.info(recipeId)
+            fetchRecipe ()
+        }
+
+        //events
+        submitButton.addEventListener('click', submitHandler)
+    </script>  
+</body>
+</html>
